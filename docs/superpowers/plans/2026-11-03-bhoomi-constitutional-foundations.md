@@ -42,14 +42,14 @@
 - Canon dataset shape: top-level `edition_date` (`2026-11-03`), `fictional_only` (`true`), `real_world_legal_effect` (`"none"`) and `records`; each record has `number`, `title`, `issue_date`, `document_type`, `canon_status` (`"new_fictional_canon"`), `operational_status` (`"framework_only"`), `authority_note`, `summary`, `prior_record_numbers`, `historical_source_ids`, `design_reference_ids` and `page_anchor`.
 - Pages use the existing project base, shared navigation and visible source anchors.
 
-- [ ] **Step 1: Write tests** for four canonical IDs and titles BHF/006–009/2026, all dated 2026-11-03, exact status values, no duplicate original IDs, linkages to S3/S4, and resolution of C1–C6.
-- [ ] **Step 2: Add page assertions** for fictional status, the four foundations, the founder-specific non-elective Chief Architect role, permanent vacancy/no successor, collective Assembly supervision, Assembly-accountable Prime Minister, no personal name or end date for the founder and no invented holder, government directory purpose/powers/appointments/terms/accountability, unknown territory, blank member-unit schedule, no real-world recognition, no applications, source citations, and all four registry entries.
-- [ ] **Step 3: Run the focused tests and verify they fail for missing canon data/routes/source IDs.**
+- [x] **Step 1: Write tests** for four canonical IDs and titles BHF/006–009/2026, all dated 2026-11-03, exact status values, no duplicate original IDs, linkages to S3/S4, and resolution of C1–C6.
+- [x] **Step 2: Add page assertions** for fictional status, the four foundations, the founder-specific non-elective Chief Architect role, permanent vacancy/no successor, collective Assembly supervision, Assembly-accountable Prime Minister, no personal name or end date for the founder and no invented holder, government directory purpose/powers/appointments/terms/accountability, unknown territory, blank member-unit schedule, no real-world recognition, no applications, source citations, and all four registry entries.
+- [x] **Step 3: Run the focused tests and verify they fail for missing canon data/routes/source IDs.**
 
 Run: `python3 -m unittest discover -s tests -p 'test_foundations.py' -v`
 Expected: assertion failures for absent deliverables, not setup errors.
 
-- [ ] **Step 4: Commit the red tests** on the local feature branch.
+- [x] **Step 4: Commit the red tests** on the local feature branch.
 
 ### Task 2: Implement canon data, source ledger and public pages
 
@@ -69,26 +69,26 @@ Expected: assertion failures for absent deliverables, not setup errors.
 - C1–C6 use the existing `id`, `title`, `kind`, `url`, `limitation` source contract.
 - New public pages use semantic headings, a skip link, one H1, existing shared navigation and visible source citations.
 
-- [ ] **Step 1: Create four linked, same-day fictional records** with distinct roles: Constitution (BHF/006), Federal Institutions and Accountability Act (BHF/007), Public Law and Administration Act (BHF/008), Citizenship and Identity Act (BHF/009).
-- [ ] **Step 2: Add six official-source records** with article/section scope and limitations; add corresponding source anchors and cited summaries to the Sources page.
-- [ ] **Step 3: Build `/canon/`** as a registry, stating the 2026 additions are not 2025 records and have no real-world legal effect or operational government/application.
-- [ ] **Step 4: Build `/foundations/`** with the Constitution, Government Directory, Legal Order and Citizenship sections exactly as specified, including the Chief Architect as founder-specific non-elective Head of Country, an unfilled permanent vacancy after the founder’s tenure, the Assembly’s collective supervisory role (not a successor Head of Country), one delegate and equal vote per future member unit, Assembly-accountable Prime Minister, court/commission appointment procedures, terms, limits, accountability, emergency review, amendment rules and the no-test, anti-statelessness citizenship process.
-- [ ] **Step 5: Add the two new navigation routes everywhere** and a short cross-link from the original Documents page; do not modify original record metadata.
-- [ ] **Step 6: Run focused tests and verify green.**
+- [x] **Step 1: Create four linked, same-day fictional records** with distinct roles: Constitution (BHF/006), Federal Institutions and Accountability Act (BHF/007), Public Law and Administration Act (BHF/008), Citizenship and Identity Act (BHF/009).
+- [x] **Step 2: Add six official-source records** with article/section scope and limitations; add corresponding source anchors and cited summaries to the Sources page.
+- [x] **Step 3: Build `/canon/`** as a registry, stating the 2026 additions are not 2025 records and have no real-world legal effect or operational government/application.
+- [x] **Step 4: Build `/foundations/`** with the Constitution, Government Directory, Legal Order and Citizenship sections exactly as specified, including the Chief Architect as founder-specific non-elective Head of Country, an unfilled permanent vacancy after the founder’s tenure, the Assembly’s collective supervisory role (not a successor Head of Country), one delegate and equal vote per future member unit, Assembly-accountable Prime Minister, court/commission appointment procedures, terms, limits, accountability, emergency review, amendment rules and the no-test, anti-statelessness citizenship process.
+- [x] **Step 5: Add the two new navigation routes everywhere** and a short cross-link from the original Documents page; do not modify original record metadata.
+- [x] **Step 6: Run focused tests and verify green.**
 
 Run: `python3 -m unittest discover -s tests -p 'test_foundations.py' -v && python3 -m unittest discover -s tests -p 'test_portal.py' -v`
 Expected: all foundation and existing portal tests pass; all original 2025 assertions remain unchanged.
 
-- [ ] **Step 7: Commit the completed canon/data/pages** on the local feature branch.
+- [x] **Step 7: Commit the completed canon/data/pages** on the local feature branch.
 
 ### Task 3: Full release verification and coordinator handoff
 
 **Files:** all changed files in Tasks 1–2.
 
-- [ ] **Step 1: Run the full Python suite** with `python3 -m unittest discover -s tests -v`.
-- [ ] **Step 2: Run the Node suite** with `node --test tests/documents.test.mjs`.
-- [ ] **Step 3: Parse every JSON file and run `git diff --check`.**
-- [ ] **Step 4: Serve the site locally under `/Bhoomi-Federation/` and verify the two new routes, all local links, and source anchors; inspect 390 px navigation/content for overflow without redesigning.
-- [ ] **Step 5: Review the complete branch diff against this spec; record any deferred minor issue in the progress ledger.**
-- [ ] **Step 6: Hand off the exact branch/worktree path and verification results to the coordinator for independent review and verification. The current worker does not push or publish.**
+- [x] **Step 1: Run the full Python suite** with `python3 -m unittest discover -s tests -v`.
+- [x] **Step 2: Run the Node suite** with `node --test tests/documents.test.mjs`.
+- [x] **Step 3: Parse every JSON file and run `git diff --check`.**
+- [x] **Step 4: Serve the site locally under `/Bhoomi-Federation/` and verify the two new routes, all local links, and source anchors; inspect 390 px navigation/content for overflow without redesigning.
+- [x] **Step 5: Review the complete branch diff against this spec; record any deferred minor issue in the progress ledger.**
+- [x] **Step 6: Hand off the exact branch/worktree path and verification results to the coordinator for independent review and verification. The current worker does not push or publish.**
 - [ ] **Coordinator-only release gate:** After independent review and verification, the coordinator may merge/push the approved branch, confirm the GitHub Pages deployment, and check live `/Bhoomi-Federation/canon/` and `/Bhoomi-Federation/foundations/` plus existing routes. Do not claim publication until those live checks pass.
