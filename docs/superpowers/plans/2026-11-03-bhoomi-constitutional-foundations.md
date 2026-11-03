@@ -37,11 +37,11 @@
 - Modify: `tests/test_portal.py`
 
 **Interfaces:**
-- Canon dataset shape: top-level `edition_date`, `fictional_only`, and `records`; each record has number, title, issue date, category, status, operational status, authority note, summary, prior record numbers, historical source IDs, design-reference IDs and page anchor.
+- Canon dataset shape: top-level `edition_date` (`2026-11-03`), `fictional_only` (`true`), `real_world_legal_effect` (`"none"`) and `records`; each record has `number`, `title`, `issue_date`, `document_type`, `canon_status` (`"new_fictional_canon"`), `operational_status` (`"framework_only"`), `authority_note`, `summary`, `prior_record_numbers`, `historical_source_ids`, `design_reference_ids` and `page_anchor`.
 - Pages use the existing project base, shared navigation and visible source anchors.
 
-- [ ] **Step 1: Write tests** for four canonical IDs/categories BHF/006–009/2026, date 2026-11-03, new-fictional/non-operational labels, linkages to S3/S4, and resolution of C1–C6.
-- [ ] **Step 2: Add page assertions** for fictional status, the four foundations, government directory fields, unknown territory, no real-world recognition, no officeholders or applications, source citations, and all four registry entries.
+- [ ] **Step 1: Write tests** for four canonical IDs and titles BHF/006–009/2026, all dated 2026-11-03, exact status values, no duplicate original IDs, linkages to S3/S4, and resolution of C1–C6.
+- [ ] **Step 2: Add page assertions** for fictional status, the four foundations, government directory purpose/powers/appointments/terms/accountability, unknown territory, blank member-unit schedule, no real-world recognition, no officeholders or applications, source citations, and all four registry entries.
 - [ ] **Step 3: Run the focused tests and verify they fail for missing canon data/routes/source IDs.**
 
 Run: `python3 -m unittest discover -s tests -p 'test_foundations.py' -v`
@@ -60,7 +60,7 @@ Expected: assertion failures for absent deliverables, not setup errors.
 - Create: `canon/index.html`
 - Create: `foundations/index.html`
 - Modify: `README.md`
-- Create: `docs/constitutional-references.md` (already staged in the feature workspace)
+- Use: `docs/constitutional-references.md` (already committed with the design documents; no file change expected)
 
 **Interfaces:**
 - `data/canon.json` is independent of the 2025 `data/documents.json` and has stable links to source IDs and page anchors.
@@ -70,7 +70,7 @@ Expected: assertion failures for absent deliverables, not setup errors.
 - [ ] **Step 1: Create four linked, same-day fictional records** with distinct roles: Constitution (BHF/006), Federal Institutions and Accountability Act (BHF/007), Public Law and Administration Act (BHF/008), Citizenship and Identity Act (BHF/009).
 - [ ] **Step 2: Add six official-source records** with article/section scope and limitations; add corresponding source anchors and cited summaries to the Sources page.
 - [ ] **Step 3: Build `/canon/`** as a registry, stating the 2026 additions are not 2025 records and have no real-world legal effect or operational government/application.
-- [ ] **Step 4: Build `/foundations/`** with the Constitution, Government Directory, Legal Order and Citizenship sections exactly as specified, including powers, appointments, terms, limits, accountability, emergency review, amendment rules and anti-statelessness safeguards.
+- [ ] **Step 4: Build `/foundations/`** with the Constitution, Government Directory, Legal Order and Citizenship sections exactly as specified, including one delegate and equal vote per future member unit, court/commission appointment procedures, terms, limits, accountability, emergency review, amendment rules and the no-test, anti-statelessness citizenship process.
 - [ ] **Step 5: Add the two new navigation routes everywhere** and a short cross-link from the original Documents page; do not modify original record metadata.
 - [ ] **Step 6: Run focused tests and verify green.**
 
