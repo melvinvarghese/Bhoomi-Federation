@@ -1,9 +1,12 @@
 """Behavioral checks for Phase 1 source and document data."""
 
 import json
+import re
+import struct
 import unittest
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -115,6 +118,9 @@ class PageMarkup(HTMLParser):
         self.headings = []
         self.h1_count = 0
         self.skip_link = False
+        self.ids = []
+        self.labels = []
+        self.live_region_ids = []
         self.nav_depth = 0
         self.nav_links = {}
         self.hrefs = []
@@ -142,6 +148,13 @@ class PageMarkup(HTMLParser):
             self.hidden_ids.append(attributes["id"])
         if tag == "html":
             self.lang = attributes.get("lang")
+        if attributes.get("id"):
+            self.ids.append(attributes["id"])
+        if tag == "label" and attributes.get("for"):
+            self.labels.append(attributes["for"])
+        if attributes.get("role") == "status" or attributes.get("aria-live"):
+            if attributes.get("id"):
+                self.live_region_ids.append(attributes["id"])
         if tag == "title":
             self.collect_title = True
         if tag in {"h1", "h2", "h3"}:
@@ -328,6 +341,9 @@ class PhaseOnePageTests(unittest.TestCase):
         cls.claims = json.loads((DATA / "claims.json").read_text(encoding="utf-8"))
         cls.claims_by_id = {item["id"]: item for item in cls.claims}
         cls.documents = json.loads((DATA / "documents.json").read_text(encoding="utf-8"))
+        for record in cls.documents:
+            slug = record["number"].replace("/", "-").casefold()
+            cls.pages[f"{PROJECT_BASE}documents/{slug}/"] = ROOT / "documents" / slug / "index.html"
 
     def test_core_pages_have_accessible_shared_shell_and_project_navigation(self):
         for route, path in self.pages.items():
@@ -338,7 +354,56 @@ class PhaseOnePageTests(unittest.TestCase):
                 self.assertEqual(page.lang, "en")
                 self.assertEqual(page.h1_count, 1)
                 self.assertTrue(page.skip_link)
+                self.assertIn("main", page.tags)
+                self.assertIn("header", page.tags)
+                self.assertIn("footer", page.tags)
                 self.assertEqual(page.nav_links, EXPECTED_NAVIGATION)
+
+    def test_every_project_base_link_and_local_asset_resolves_inside_repository(self):
+        parsed_pages = {path: parse_page(path) for path in self.pages.values() if path.is_file()}
+        for route, path in self.pages.items():
+            with self.subTest(route=route):
+                self.assertTrue(path.is_file(), f"Missing route file for {route}")
+                page = parsed_pages[path]
+                for target in [*page.hrefs, *page.srcs]:
+                    if not target.startswith(PROJECT_BASE):
+                        continue
+                    parsed = urlsplit(target)
+                    relative = parsed.path.removeprefix(PROJECT_BASE)
+                    target_path = ROOT / relative
+                    if not relative or relative.endswith("/") or not target_path.suffix:
+                        target_path = target_path / "index.html"
+                    self.assertTrue(target_path.is_file(), f"{route} links to missing {target}")
+                    if parsed.fragment:
+                        target_page = parsed_pages.get(target_path)
+                        if target_page:
+                            self.assertIn(parsed.fragment, target_page.ids, f"{target} has no matching anchor")
+
+    def test_filter_controls_are_labeled_and_results_have_a_polite_live_region(self):
+        page = parse_page(self.pages["/Bhoomi-Federation/documents/"])
+        self.assertTrue({"document-search", "document-year", "document-type", "document-authority"}.issubset(page.labels))
+        self.assertIn("document-results-status", page.live_region_ids)
+
+    def test_css_contrast_and_reduced_motion_meet_release_thresholds(self):
+        css = (ROOT / "assets" / "css" / "site.css").read_text(encoding="utf-8")
+        tokens = dict(re.findall(r"--color-([a-z-]+):\s*(#[0-9a-fA-F]{6})", css))
+
+        def luminance(color):
+            channels = [int(color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+            linear = [value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4 for value in channels]
+            return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+        def contrast(foreground, background):
+            lighter, darker = sorted((luminance(foreground), luminance(background)), reverse=True)
+            return (lighter + 0.05) / (darker + 0.05)
+
+        surface = tokens["surface"]
+        for token in ("text", "muted", "link"):
+            with self.subTest(color=token):
+                self.assertGreaterEqual(contrast(tokens[token], surface), 4.5)
+        self.assertGreaterEqual(contrast(tokens["focus"], surface), 3.0)
+        self.assertIn("@media (prefers-reduced-motion: reduce)", css)
+        self.assertIn("scroll-behavior: auto", css)
 
     def test_every_factual_claim_has_a_known_id_and_visible_source_citations(self):
         for route, path in self.pages.items():
@@ -462,6 +527,15 @@ class PhaseOnePageTests(unittest.TestCase):
                 self.assertIn(record["archive_item_url"], page.hrefs)
                 self.assertNotIn(record["archive_file_url"], page.hrefs)
                 self.assertFalse(any(href.lower().endswith(".pdf") for href in page.hrefs))
+
+    def test_social_preview_has_expected_png_dimensions_and_size(self):
+        path = ROOT / "assets" / "images" / "social-preview.png"
+        self.assertTrue(path.is_file(), "The GitHub social preview should exist")
+        image = path.read_bytes()
+        self.assertEqual(image[:8], b"\x89PNG\r\n\x1a\n")
+        width, height = struct.unpack(">II", image[16:24])
+        self.assertEqual((width, height), (1280, 640))
+        self.assertLess(len(image), 1024 * 1024)
 
 
 if __name__ == "__main__":
