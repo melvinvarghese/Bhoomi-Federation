@@ -77,6 +77,7 @@ EXPECTED_SOURCE_IDS = {
     "S1", "S2", "S3", "S4", "S5",
     "L1", "L2", "L3", "L4",
     "R1", "R2", "P1",
+    "C1", "C2", "C3", "C4", "C5", "C6",
 }
 
 REQUIRED_CLAIM_IDS = {
@@ -103,6 +104,8 @@ EXPECTED_NAVIGATION = {
     "/Bhoomi-Federation/about/": "About & History",
     "/Bhoomi-Federation/documents/": "Official Documents",
     "/Bhoomi-Federation/calendar/": "National Calendar",
+    "/Bhoomi-Federation/canon/": "Canon",
+    "/Bhoomi-Federation/foundations/": "Foundations",
     "/Bhoomi-Federation/sources/": "Sources & Provenance",
 }
 
@@ -196,7 +199,7 @@ class PageMarkup(HTMLParser):
             self.collect_card_title = True
         if tag == "time" and self.current_document_card is not None:
             self.current_document_card["issue_date"] = attributes.get("datetime")
-        if tag in {"section", "article", "div"} and attributes.get("id", "").startswith(("S", "L", "R", "P")):
+        if tag in {"section", "article", "div"} and attributes.get("id", "").startswith(("S", "L", "R", "P", "C")):
             self.source_anchors.add(attributes["id"])
 
     def handle_endtag(self, tag):
@@ -275,7 +278,7 @@ class PhaseOneDataTests(unittest.TestCase):
     def test_claim_statuses_and_references_resolve_to_real_sources(self):
         self.assertTrue(REQUIRED_CLAIM_IDS.issubset(self.claims_by_id))
         self.assertEqual(set(self.sources_by_id), EXPECTED_SOURCE_IDS)
-        self.assertEqual(len(self.sources), 12)
+        self.assertEqual(len(self.sources), 18)
         for claim in self.claims:
             with self.subTest(claim=claim["id"]):
                 self.assertIn(claim["status"], ALLOWED_CLAIM_STATUSES)
@@ -341,9 +344,11 @@ class PhaseOnePageTests(unittest.TestCase):
         cls.pages = {
             "/Bhoomi-Federation/": ROOT / "index.html",
             "/Bhoomi-Federation/about/": ROOT / "about/index.html",
-            "/Bhoomi-Federation/documents/": ROOT / "documents/index.html",
-            "/Bhoomi-Federation/calendar/": ROOT / "calendar/index.html",
-            "/Bhoomi-Federation/sources/": ROOT / "sources/index.html",
+            "/Bhoomi-Federation/documents/": ROOT / "documents" / "index.html",
+            "/Bhoomi-Federation/calendar/": ROOT / "calendar" / "index.html",
+            "/Bhoomi-Federation/canon/": ROOT / "canon" / "index.html",
+            "/Bhoomi-Federation/foundations/": ROOT / "foundations" / "index.html",
+            "/Bhoomi-Federation/sources/": ROOT / "sources" / "index.html",
         }
         cls.claims = json.loads((DATA / "claims.json").read_text(encoding="utf-8"))
         cls.claims_by_id = {item["id"]: item for item in cls.claims}
@@ -394,6 +399,7 @@ class PhaseOnePageTests(unittest.TestCase):
     def test_public_pages_link_to_archive_items_not_direct_pdf_files(self):
         for route, path in self.pages.items():
             with self.subTest(route=route):
+                self.assertTrue(path.is_file(), f"Missing route file for {route}")
                 page = parse_page(path)
                 download_links = [
                     href
