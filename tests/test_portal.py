@@ -120,6 +120,13 @@ class PageMarkup(HTMLParser):
         self.hrefs = []
         self.srcs = []
         self.claim_ids = []
+        self.document_numbers = []
+        self.tags = []
+        self.datetime_values = []
+        self.hidden_ids = []
+        self.document_cards = []
+        self.current_document_card = None
+        self.collect_card_title = False
         self.source_links = set()
         self.source_anchors = set()
         self.heading_stack = []
@@ -128,6 +135,11 @@ class PageMarkup(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attributes = dict(attrs)
+        self.tags.append(tag)
+        if tag == "time" and attributes.get("datetime"):
+            self.datetime_values.append(attributes["datetime"])
+        if "hidden" in attributes and attributes.get("id"):
+            self.hidden_ids.append(attributes["id"])
         if tag == "html":
             self.lang = attributes.get("lang")
         if tag == "title":
@@ -156,6 +168,21 @@ class PageMarkup(HTMLParser):
         claim_id = attributes.get("data-claim-id")
         if claim_id:
             self.claim_ids.append(claim_id)
+        document_number = attributes.get("data-document-number")
+        if document_number:
+            self.document_numbers.append(document_number)
+            self.current_document_card = {
+                "number": document_number,
+                "title": "",
+                "issue_date": None,
+                "document_type": attributes.get("data-document-type"),
+                "issuing_authority": attributes.get("data-document-authority"),
+            }
+            self.document_cards.append(self.current_document_card)
+        if tag == "h2" and self.current_document_card is not None:
+            self.collect_card_title = True
+        if tag == "time" and self.current_document_card is not None:
+            self.current_document_card["issue_date"] = attributes.get("datetime")
         if tag in {"section", "article", "div"} and attributes.get("id", "").startswith(("S", "L", "R", "P")):
             self.source_anchors.add(attributes["id"])
 
@@ -167,6 +194,10 @@ class PageMarkup(HTMLParser):
             self.collect_heading = bool(self.heading_stack)
         if tag == "nav" and self.nav_depth:
             self.nav_depth -= 1
+        if tag == "h2":
+            self.collect_card_title = False
+        if tag == "li" and self.current_document_card is not None:
+            self.current_document_card = None
 
     def handle_data(self, data):
         text = data.strip()
@@ -177,6 +208,8 @@ class PageMarkup(HTMLParser):
             self.title.append(text)
         if self.collect_heading and self.headings:
             self.headings[-1][1] += text
+        if self.collect_card_title and self.current_document_card is not None:
+            self.current_document_card["title"] += text
         if self.nav_depth and self.nav_links:
             last_href = next(reversed(self.nav_links))
             if not self.nav_links[last_href]:
@@ -382,12 +415,53 @@ class PhaseOnePageTests(unittest.TestCase):
             },
         )
         self.assertTrue({"S1", "S2", "S3", "S4", "S5"}.issubset(page.source_links))
+        expected_numbers = [record["number"] for record in self.documents]
+        self.assertEqual(page.document_numbers, expected_numbers)
+        self.assertEqual(
+            page.document_cards,
+            [
+                {
+                    "number": item["number"],
+                    "title": item["title"],
+                    "issue_date": item["issue_date"],
+                    "document_type": item["document_type"],
+                    "issuing_authority": item["issuing_authority"],
+                }
+                for item in self.documents
+            ],
+        )
         self.assertIn("primary record", " ".join(page.body_text).casefold())
+        self.assertIn("document-filters", page.hidden_ids)
+        self.assertIn("document-results-status", page.hidden_ids)
         for record in self.documents:
             with self.subTest(number=record["number"]):
                 self.assertIn(record["number"], " ".join(page.body_text))
                 self.assertIn(record["title"], " ".join(page.body_text))
                 self.assertIn(record["archive_item_url"], page.hrefs)
+                slug = record["number"].replace("/", "-").casefold()
+                self.assertIn(f"/Bhoomi-Federation/documents/{slug}/", page.hrefs)
+
+    def test_each_document_detail_page_matches_its_json_record_and_link_only_policy(self):
+        for record in self.documents:
+            slug = record["number"].replace("/", "-").casefold()
+            route = f"/Bhoomi-Federation/documents/{slug}/"
+            path = ROOT / "documents" / slug / "index.html"
+            with self.subTest(number=record["number"]):
+                self.assertTrue(path.is_file(), f"Missing detail route {route}")
+                page = parse_page(path)
+                text = " ".join(page.body_text)
+                headings = [value for tag, value in page.headings if tag == "h1"]
+                self.assertEqual(headings, [record["title"]])
+                self.assertIn(record["number"], text)
+                self.assertIn(record["issue_date"], page.datetime_values)
+                self.assertIn(record["document_type"], text)
+                self.assertIn(record["issuing_authority"], text)
+                self.assertIn("Primary record", text)
+                self.assertIn("CC BY-NC-ND 4.0", text)
+                self.assertIn("does not independently establish uploader authority", text)
+                self.assertIn(record["archive_item_url"], page.hrefs)
+                self.assertNotIn(record["archive_file_url"], page.hrefs)
+                self.assertFalse(any(href.lower().endswith(".pdf") for href in page.hrefs))
 
 
 if __name__ == "__main__":

@@ -331,6 +331,63 @@ p, li { max-width: 72ch; }
 .document-list h2 { margin: 0; font-size: 1.35rem; }
 .document-list .document-number { display: block; margin-block-start: .3rem; color: var(--color-muted); font-size: .85rem; }
 
+.document-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block: 2rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.filter-field label {
+  display: block;
+  margin-block-end: .35rem;
+  font-size: .9rem;
+  font-weight: 650;
+}
+
+.filter-field input,
+.filter-field select,
+.filter-actions button {
+  width: 100%;
+  min-height: 44px;
+  padding: .55rem .65rem;
+  border: 1px solid #687473;
+  border-radius: 0;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: end;
+  gap: .65rem;
+  grid-column: 1 / -1;
+}
+
+.filter-actions button {
+  width: auto;
+  min-width: 10rem;
+  border-color: var(--color-link);
+  background: var(--color-link);
+  color: #fff;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.filter-actions button[type="reset"] {
+  border-color: var(--color-line);
+  background: var(--color-page);
+  color: var(--color-text);
+}
+
+.filter-actions button:hover { filter: brightness(.92); }
+#document-results-status { margin-block: 1.25rem; font-weight: 650; }
+[hidden] { display: none !important; }
+
 .schedule-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -377,6 +434,7 @@ p, li { max-width: 72ch; }
   .hero-art { min-height: 12rem; }
   .document-list li { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .45rem .8rem; }
   .document-list time { grid-column: 2; }
+  .document-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .schedule-grid { grid-template-columns: 1fr; }
 }
 
@@ -386,6 +444,9 @@ p, li { max-width: 72ch; }
   .status-list dt { padding-block-end: .25rem; border-block-end: 0; }
   .status-list dd { padding-block-start: .1rem; }
   .record-list li { grid-template-columns: 1fr; gap: .3rem; }
+  .document-filters { grid-template-columns: 1fr; }
+  .filter-actions { align-items: stretch; flex-direction: column; }
+  .filter-actions button { width: 100%; }
   .site-footer { flex-direction: column; }
 }
 
