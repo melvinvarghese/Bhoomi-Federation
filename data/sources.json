@@ -1,0 +1,86 @@
+[
+  {
+    "id": "S1",
+    "title": "Flag Adoption Proclamation (BHF/001/2025)",
+    "kind": "primary_record",
+    "url": "https://archive.org/download/flag-adoption-proclamation/Flag%20Adoption%20Proclamation.pdf",
+    "limitation": "The PDF is evidence of its own wording; its legal force and the flag's precise visual color are not independently established."
+  },
+  {
+    "id": "S2",
+    "title": "National Day Proclamation (BHF/002/2025)",
+    "kind": "primary_record",
+    "url": "https://archive.org/download/national-day-proclamation/National%20Day%20Proclamation.pdf",
+    "limitation": "The PDF records its own wording; no later institutional status is inferred."
+  },
+  {
+    "id": "S3",
+    "title": "Founding Proclamation (BHF/003/2025)",
+    "kind": "primary_record",
+    "url": "https://archive.org/download/founding-proclamation/Founding%20Proclamation.pdf",
+    "limitation": "The PDF records its own wording; Archive.org's differing item description is not substituted for the printed title."
+  },
+  {
+    "id": "S4",
+    "title": "On the Official Designation of Citizens of the Bhoomi Federation (BHF/004/2025)",
+    "kind": "primary_record",
+    "url": "https://archive.org/download/004-2025-citizens-bhoomians-executive-order-1/004-2025%20Citizens%20-%20Bhoomians%20Executive%20Order%201.pdf",
+    "limitation": "The PDF designates the demonym but does not set out citizenship eligibility or a grant process."
+  },
+  {
+    "id": "S5",
+    "title": "Adoption of the Official National Calendar (BHF/005/2025)",
+    "kind": "primary_record",
+    "url": "https://archive.org/download/005-2025-national-calendar-executive-order-2/005-2025%20National%20Calendar%20Executive%20Order%202.pdf",
+    "limitation": "The PDF sets the listed schedule; the Archive.org item label “Executive Order 2” does not appear in its printed title."
+  },
+  {
+    "id": "L1",
+    "title": "Bhoomi Federation legacy home page",
+    "kind": "legacy_site",
+    "url": "https://bhoomi.rf.gd/",
+    "limitation": "Historical public-facing copy, not a detailed constitutional or welfare programme."
+  },
+  {
+    "id": "L2",
+    "title": "Bhoomi Federation legacy About page",
+    "kind": "legacy_site",
+    "url": "https://bhoomi.rf.gd/about/",
+    "limitation": "Historical public-facing description; it does not establish later institutions or legal status."
+  },
+  {
+    "id": "L3",
+    "title": "Bhoomi Federation legacy Become a Citizen page",
+    "kind": "legacy_site",
+    "url": "https://bhoomi.rf.gd/become-a-citizen/",
+    "limitation": "A dated historical statement only; it does not establish current application availability or eligibility."
+  },
+  {
+    "id": "L4",
+    "title": "Bhoomi Federation legacy sitemap",
+    "kind": "legacy_site",
+    "url": "https://bhoomi.rf.gd/wp-sitemap.xml",
+    "limitation": "A route inventory only; it is not evidence that a page's claims are accurate or that the page remains active."
+  },
+  {
+    "id": "R1",
+    "title": "Bhoomi Federation GitHub repository",
+    "kind": "repository_record",
+    "url": "https://github.com/melvinvarghese/Bhoomi-Federation",
+    "limitation": "Repository metadata and project files, not independent evidence for historical claims."
+  },
+  {
+    "id": "R2",
+    "title": "Bhoomi Federation GitHub Pages site",
+    "kind": "published_site",
+    "url": "https://melvinvarghese.github.io/Bhoomi-Federation/",
+    "limitation": "The published project website is not independent historical evidence."
+  },
+  {
+    "id": "P1",
+    "title": "Owner-provided Bhoomi project brief",
+    "kind": "editorial_context",
+    "url": null,
+    "limitation": "Private project context used only to record unresolved research leads; not historical evidence."
+  }
+]
