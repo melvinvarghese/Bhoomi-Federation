@@ -199,7 +199,7 @@ class PageMarkup(HTMLParser):
             self.collect_card_title = True
         if tag == "time" and self.current_document_card is not None:
             self.current_document_card["issue_date"] = attributes.get("datetime")
-        if tag in {"section", "article", "div"} and attributes.get("id", "").startswith(("S", "L", "R", "P", "C")):
+        if tag in {"section", "article", "div", "li"} and attributes.get("id", "").startswith(("S", "L", "R", "P", "C")):
             self.source_anchors.add(attributes["id"])
 
     def handle_endtag(self, tag):

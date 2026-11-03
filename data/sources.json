@@ -82,5 +82,47 @@
     "kind": "editorial_context",
     "url": null,
     "limitation": "Private project context used only to record unresolved research leads; not historical evidence."
+  },
+  {
+    "id": "C1",
+    "title": "Germany's Basic Law (official English text)",
+    "kind": "constitutional_reference",
+    "url": "https://www.gesetze-im-internet.de/englisch_gg/englisch_gg.html",
+    "limitation": "Comparative design source only. The English text is provided for convenience; the German text controls. No German rule is represented as Bhoomi law."
+  },
+  {
+    "id": "C2",
+    "title": "South African Constitution (Department of Justice HTML chapters)",
+    "kind": "constitutional_reference",
+    "url": "https://www.justice.gov.za/constitution/index.html",
+    "limitation": "Comparative source only. Its national, provincial and local spheres are distinctive, interdependent and interrelated; they are not described as a federation. The South African allocation and priority rules are not Bhoomi law."
+  },
+  {
+    "id": "C3",
+    "title": "Constitution Acts and Canadian Charter of Rights and Freedoms",
+    "kind": "constitutional_reference",
+    "url": "https://laws-lois.justice.gc.ca/eng/const/",
+    "limitation": "Comparative source only. Canadian federal division of powers, Charter remedies and its limited, renewable notwithstanding mechanism are not Bhoomi law or a recommended single model."
+  },
+  {
+    "id": "C4",
+    "title": "International Covenant on Civil and Political Rights (OHCHR text)",
+    "kind": "human_rights_reference",
+    "url": "https://www.ohchr.org/en/instruments-mechanisms/instruments/international-covenant-civil-and-political-rights",
+    "limitation": "A treaty text, not a domestic constitution. Treaty obligations apply to States Parties; the Covenant is not represented as binding Bhoomi or as proof of statehood."
+  },
+  {
+    "id": "C5",
+    "title": "Convention on the Rights of the Child (OHCHR text)",
+    "kind": "human_rights_reference",
+    "url": "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-child",
+    "limitation": "A treaty text for its States Parties. It informs child identity and participation safeguards but does not supply a complete citizenship code or make the Convention a Bhoomi obligation."
+  },
+  {
+    "id": "C6",
+    "title": "Convention on the Reduction of Statelessness (OHCHR text)",
+    "kind": "human_rights_reference",
+    "url": "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-reduction-statelessness",
+    "limitation": "A treaty text for contracting States, with specified rules and conditions. It is a reference for safeguards against statelessness, not a universal citizenship code or a Bhoomi obligation."
   }
 ]
