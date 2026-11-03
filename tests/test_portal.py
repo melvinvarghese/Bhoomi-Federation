@@ -251,6 +251,23 @@ class PortalPageTests(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertIn(value, text)
 
+    def test_homepage_uses_corrected_banner_asset_without_unbuilt_sections(self):
+        page = self.parsed_pages[PROJECT_BASE]
+        home = (ROOT / "index.html").read_text(encoding="utf-8")
+        banner_path = f"{PROJECT_BASE}assets/images/homepage-banner.webp"
+        banner_asset = ROOT / "assets" / "images" / "homepage-banner.webp"
+
+        self.assertIn(banner_path, page.srcs)
+        self.assertTrue(banner_asset.is_file())
+        self.assertIn(
+            'alt="The Bhoomi Federation banner with a vertical blue-white-green flag and only the areas Constitution &amp; Government, National Records, and National Calendar."',
+            home,
+        )
+        self.assertNotRegex(
+            " ".join(page.body_text).casefold(),
+            r"\b(citizens|economy|geography)\b",
+        )
+
     def test_about_page_keeps_2025_national_history(self):
         page = self.parsed_pages[f"{PROJECT_BASE}about/"]
         text = " ".join(page.body_text).casefold()

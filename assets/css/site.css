@@ -160,20 +160,10 @@ p, li { max-width: 72ch; }
 .hero-art {
   display: block;
   width: 100%;
-  min-height: 17rem;
-  color: var(--color-leaf);
+  height: auto;
   background: var(--color-surface);
   border: 1px solid var(--color-line);
 }
-
-.hero-art path, .hero-art line, .hero-art circle {
-  vector-effect: non-scaling-stroke;
-}
-
-.hero-art .contour { fill: none; stroke: currentColor; stroke-width: 1.15; opacity: .72; }
-.hero-art .horizon { fill: none; stroke: var(--color-text); stroke-width: 1.35; }
-.hero-art .sun { fill: var(--color-page); stroke: var(--color-rust); stroke-width: 1.5; }
-.hero-art .marker { fill: var(--color-rust); }
 
 .notice {
   max-width: 68ch;
@@ -431,7 +421,6 @@ p, li { max-width: 72ch; }
   .site-header { align-items: flex-start; flex-direction: column; gap: .7rem; }
   .site-nav ul { justify-content: flex-start; gap: .1rem .8rem; }
   .hero { grid-template-columns: 1fr; padding-block-end: 2.5rem; }
-  .hero-art { min-height: 12rem; }
   .document-list li { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .45rem .8rem; }
   .document-list time { grid-column: 2; }
   .document-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
