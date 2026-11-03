@@ -300,6 +300,13 @@ class PhaseOneDataTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, text)
 
+    def test_calendar_claim_and_document_summary_include_office_closure(self):
+        claim = self.claims_by_id["C-CALENDAR-RULES"]["text"].casefold()
+        summary = self.documents_by_number["BHF/005/2025"]["summary"].casefold()
+        for text in (claim, summary):
+            self.assertIn("government offices", text)
+            self.assertIn("remain closed", text)
+
     def test_annual_national_day_recurrence_is_not_attributed_to_calendar_order(self):
         claim = self.claims_by_id["C-NATIONAL-DAY"]
         self.assertEqual(set(claim["source_ids"]), {"S2", "S3"})
@@ -388,8 +395,13 @@ class PhaseOnePageTests(unittest.TestCase):
         for route, path in self.pages.items():
             with self.subTest(route=route):
                 page = parse_page(path)
-                pdf_links = [href for href in page.hrefs if urlsplit(href).path.casefold().endswith(".pdf")]
-                self.assertEqual(pdf_links, [])
+                download_links = [
+                    href
+                    for href in page.hrefs
+                    if "/download/" in urlsplit(href).path.casefold()
+                    or urlsplit(href).path.casefold().endswith(".pdf")
+                ]
+                self.assertEqual(download_links, [])
 
     def test_same_day_order_note_cites_both_primary_records(self):
         html = (ROOT / "documents" / "index.html").read_text(encoding="utf-8")
@@ -468,6 +480,7 @@ class PhaseOnePageTests(unittest.TestCase):
         self.assertIn("saturday", text)
         self.assertIn("sunday", text)
         self.assertIn("sole public holiday", text)
+        self.assertIn("government offices remain closed", text)
         self.assertIn("annual", text)
         self.assertTrue({"S2", "S3", "S5"}.issubset(page.source_links))
 
