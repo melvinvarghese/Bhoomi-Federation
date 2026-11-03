@@ -384,6 +384,20 @@ class PhaseOnePageTests(unittest.TestCase):
         self.assertTrue({"document-search", "document-year", "document-type", "document-authority"}.issubset(page.labels))
         self.assertIn("document-results-status", page.live_region_ids)
 
+    def test_public_pages_link_to_archive_items_not_direct_pdf_files(self):
+        for route, path in self.pages.items():
+            with self.subTest(route=route):
+                page = parse_page(path)
+                pdf_links = [href for href in page.hrefs if urlsplit(href).path.casefold().endswith(".pdf")]
+                self.assertEqual(pdf_links, [])
+
+    def test_same_day_order_note_cites_both_primary_records(self):
+        html = (ROOT / "documents" / "index.html").read_text(encoding="utf-8")
+        claim = re.search(r'<div\s+data-claim-id="C-FOUNDING-DATE"[^>]*>.*?</div>', html, re.DOTALL)
+        self.assertIsNotNone(claim)
+        cited_sources = set(re.findall(r'href="/Bhoomi-Federation/sources/#([^"]+)"', claim.group()))
+        self.assertTrue({"S2", "S3"}.issubset(cited_sources))
+
     def test_css_contrast_and_reduced_motion_meet_release_thresholds(self):
         css = (ROOT / "assets" / "css" / "site.css").read_text(encoding="utf-8")
         tokens = dict(re.findall(r"--color-([a-z-]+):\s*(#[0-9a-fA-F]{6})", css))
