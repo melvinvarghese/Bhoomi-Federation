@@ -63,6 +63,7 @@ Do not add placeholder pages, a build system, a package manifest, copied PDFs, o
 - Create: `data/sources.json`
 - Create: `data/claims.json`
 - Create: `data/documents.json`
+- Create: `tests/__init__.py`
 - Create: `tests/test_portal.py`
 
 **Interfaces:**
@@ -73,21 +74,24 @@ Do not add placeholder pages, a build system, a package manifest, copied PDFs, o
 - Source IDs S1–S5, L1–L4, and R1–R2 refer to the sources listed in the approved spec. P1 is the owner-provided brief, used only as editorial provenance for the unresolved research leads, not as historical evidence; because it is private project input, its public URL is null. Set each record’s `redistribution_decision` to `link_only` unless separate, supportable authorization is documented; do not treat the Archive.org license listing as that authorization.
 
 - [ ] **Step 1: Write the failing data-contract tests** in `tests/test_portal.py`: assert the five ordered number/date/title tuples are `(BHF/001/2025, 2025-06-04, Flag Adoption Proclamation)`, `(BHF/002/2025, 2025-06-05, National Day Proclamation)`, `(BHF/003/2025, 2025-06-05, Founding Proclamation)`, `(BHF/004/2025, 2025-06-06, Citizens (Bhoomians), Executive Order No. 1)`, and `(BHF/005/2025, 2025-06-07, Adoption of the Official National Calendar)`; assert each `canonical_source_url`, `archive_item_url`, and `archive_file_url` matches the corresponding S1–S5 URLs in the spec; assert the required fields, valid claim/source references, allowed statuses, displayed-license caveat, and `link_only` decision. Assert the exact four values—clarity of thought, ethical governance, dignity of individual existence, collective peace—and the recorded calendar rules; pin the flag-color, BHF/003 title, and BHF/005 Executive Order 2 discrepancies as uncertainties, not resolved facts.
-- [ ] **Step 2: Run the tests and verify they fail** because the JSON data files do not yet exist.
+- [ ] **Step 1: Write the failing data-contract tests** in `tests/test_portal.py`: assert the five ordered number/date/title tuples are `(BHF/001/2025, 2025-06-04, Flag Adoption Proclamation)`, `(BHF/002/2025, 2025-06-05, National Day Proclamation)`, `(BHF/003/2025, 2025-06-05, Founding Proclamation)`, `(BHF/004/2025, 2025-06-06, On the Official Designation of Citizens of the Bhoomi Federation)`, and `(BHF/005/2025, 2025-06-07, Adoption of the Official National Calendar)`; assert each `canonical_source_url`, `archive_item_url`, and `archive_file_url` matches the corresponding S1–S5 URLs in the spec; assert the required fields, valid claim/source references, allowed statuses, displayed-license caveat, and `link_only` decision. Assert the exact four values—clarity of thought, ethical governance, dignity of individual existence, collective peace—and the recorded calendar rules; pin the flag-color, BHF/003 title, and BHF/005 Executive Order 2 discrepancies as uncertainties, not resolved facts.
+- [ ] **Step 2: Create an empty `tests/__init__.py`** so Python 3.12 unittest discovery can import the test directory.
+
+- [ ] **Step 3: Run the tests and verify they fail** because the JSON data files do not yet exist.
 
   Run: `python3 -m unittest discover -s tests -p 'test_portal.py' -v`
 
   Expected: FAIL on missing data files or missing required records.
-- [ ] **Step 3: Populate the three JSON files** from the approved spec and original PDFs. Use the PDF’s printed title, date, type, and issuing authority; if an authority is not stated, record “Not stated in PDF” rather than inventing one. Preserve the BHF/003 title discrepancy, BHF/005 metadata-only “Executive Order 2” label, same-day order uncertainty for BHF/002 and BHF/003, citizenship-process gap, and flag-color discrepancy in uncertainty notes. Record CC BY-NC-ND 4.0 as displayed platform metadata, not proof of redistribution rights. Store National Day’s annual recurrence as sourced to BHF/002 and BHF/003, not BHF/005.
-- [ ] **Step 4: Run the data tests and verify they pass.**
+- [ ] **Step 4: Populate the three JSON files** from the approved spec and original PDFs. Use the PDF’s printed title, date, type, and issuing authority; if an authority is not stated, record “Not stated in PDF” rather than inventing one. Preserve the BHF/003 title discrepancy, BHF/005 metadata-only “Executive Order 2” label, same-day order uncertainty for BHF/002 and BHF/003, citizenship-process gap, and flag-color discrepancy in uncertainty notes. Record CC BY-NC-ND 4.0 as displayed platform metadata, not proof of redistribution rights. Store National Day’s annual recurrence as sourced to BHF/002 and BHF/003, not BHF/005.
+- [ ] **Step 5: Run the data tests and verify they pass.**
 
   Run: `python3 -m unittest discover -s tests -p 'test_portal.py' -v`
 
   Expected: PASS; all five records and claims resolve to known source IDs and none is marked as currently in force.
-- [ ] **Step 5: Commit** the tested data contract and tests.
+- [ ] **Step 6: Commit** the tested data contract and tests.
 
   ```bash
-  git add data/sources.json data/claims.json data/documents.json tests/test_portal.py
+  git add data/sources.json data/claims.json data/documents.json tests/__init__.py tests/test_portal.py
   git commit -m "feat: add sourced Phase 1 archive data"
   ```
 
