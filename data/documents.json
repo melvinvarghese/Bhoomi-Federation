@@ -6,15 +6,7 @@
     "document_type": "Proclamation",
     "issuing_authority": "Melvin Varghese, Chief Architect, The Bhoomi Federation",
     "summary": "Adopts a vertical blue-white-green triband and records its stated colors, proportions, symbolism, and protocols of use.",
-    "canonical_source_url": "https://archive.org/download/flag-adoption-proclamation/Flag%20Adoption%20Proclamation.pdf",
-    "archive_item_url": "https://archive.org/details/flag-adoption-proclamation",
-    "archive_file_url": "https://archive.org/download/flag-adoption-proclamation/Flag%20Adoption%20Proclamation.pdf",
-    "displayed_license": "CC BY-NC-ND 4.0 (as displayed in Archive.org metadata)",
-    "redistribution_decision": "link_only",
-    "uncertainty_notes": [
-      "PDF text extraction gives green #008A45; Archive.org OCR metadata gives #008445. The original visual record has not resolved this discrepancy, so no precise flag artwork is included.",
-      "No independent authentication or later legal framework is asserted."
-    ]
+    "archive_item_url": "https://archive.org/details/flag-adoption-proclamation"
   },
   {
     "number": "BHF/002/2025",
@@ -23,15 +15,7 @@
     "document_type": "Proclamation",
     "issuing_authority": "Melvin Varghese, Chief Architect, The Bhoomi Federation",
     "summary": "Identifies 5 June as the Federation's inception and says it shall be observed annually as National Day.",
-    "canonical_source_url": "https://archive.org/download/national-day-proclamation/National%20Day%20Proclamation.pdf",
-    "archive_item_url": "https://archive.org/details/national-day-proclamation",
-    "archive_file_url": "https://archive.org/download/national-day-proclamation/National%20Day%20Proclamation.pdf",
-    "displayed_license": "CC BY-NC-ND 4.0 (as displayed in Archive.org metadata)",
-    "redistribution_decision": "link_only",
-    "uncertainty_notes": [
-      "This document and BHF/003/2025 are both dated 5 June 2025; their order within that date is not stated.",
-      "No independent authentication or later legal framework is asserted."
-    ]
+    "archive_item_url": "https://archive.org/details/national-day-proclamation"
   },
   {
     "number": "BHF/003/2025",
@@ -40,51 +24,24 @@
     "document_type": "Proclamation",
     "issuing_authority": "Melvin Varghese, Chief Architect, The Bhoomi Federation",
     "summary": "Declares the Bhoomi Federation formally established, names 5 June 2025 as its foundation date, and lists four founding values.",
-    "canonical_source_url": "https://archive.org/download/founding-proclamation/Founding%20Proclamation.pdf",
-    "archive_item_url": "https://archive.org/details/founding-proclamation",
-    "archive_file_url": "https://archive.org/download/founding-proclamation/Founding%20Proclamation.pdf",
-    "displayed_license": "CC BY-NC-ND 4.0 (as displayed in Archive.org metadata)",
-    "redistribution_decision": "link_only",
-    "uncertainty_notes": [
-      "The PDF title is “Founding Proclamation”; Archive.org's item description uses “The Bhoomi Foundation.” Follow the PDF title.",
-      "BHF/002/2025 and this document are both dated 5 June 2025; their order within that date is not stated.",
-      "No independent authentication or later legal framework is asserted."
-    ]
+    "archive_item_url": "https://archive.org/details/founding-proclamation"
   },
   {
     "number": "BHF/004/2025",
     "title": "On the Official Designation of Citizens of the Bhoomi Federation",
     "issue_date": "2025-06-06",
-    "document_type": "Not stated in PDF",
+    "document_type": "Not stated in record",
     "issuing_authority": "Melvin Varghese, Chief Architect, The Bhoomi Federation",
     "summary": "Designates people granted citizenship under the stated legal and administrative framework as Bhoomians.",
-    "canonical_source_url": "https://archive.org/download/004-2025-citizens-bhoomians-executive-order-1/004-2025%20Citizens%20-%20Bhoomians%20Executive%20Order%201.pdf",
-    "archive_item_url": "https://archive.org/details/004-2025-citizens-bhoomians-executive-order-1",
-    "archive_file_url": "https://archive.org/download/004-2025-citizens-bhoomians-executive-order-1/004-2025%20Citizens%20-%20Bhoomians%20Executive%20Order%201.pdf",
-    "displayed_license": "CC BY-NC-ND 4.0 (as displayed in Archive.org metadata)",
-    "redistribution_decision": "link_only",
-    "uncertainty_notes": [
-      "The printed title does not name an executive order number; the Archive.org file/item label includes “Executive Order 1.”",
-      "The document does not define citizenship eligibility or a grant process.",
-      "No independent authentication or later legal framework is asserted."
-    ]
+    "archive_item_url": "https://archive.org/details/004-2025-citizens-bhoomians-executive-order-1"
   },
   {
     "number": "BHF/005/2025",
     "title": "Adoption of the Official National Calendar",
     "issue_date": "2025-06-07",
-    "document_type": "Not stated in PDF",
+    "document_type": "Not stated in record",
     "issuing_authority": "Melvin Varghese, Chief Architect, The Bhoomi Federation",
     "summary": "Lists Monday through Friday as working days, weekends as non-working days, and 5 June as the sole public holiday; it says government offices remain closed on that day.",
-    "canonical_source_url": "https://archive.org/download/005-2025-national-calendar-executive-order-2/005-2025%20National%20Calendar%20Executive%20Order%202.pdf",
-    "archive_item_url": "https://archive.org/details/005-2025-national-calendar-executive-order-2",
-    "archive_file_url": "https://archive.org/download/005-2025-national-calendar-executive-order-2/005-2025%20National%20Calendar%20Executive%20Order%202.pdf",
-    "displayed_license": "CC BY-NC-ND 4.0 (as displayed in Archive.org metadata)",
-    "redistribution_decision": "link_only",
-    "uncertainty_notes": [
-      "“Executive Order 2” appears in Archive.org metadata and the filename, not in the printed PDF title.",
-      "This document lists 5 June as the sole public holiday; annual National Day recurrence is stated in BHF/002/2025 and BHF/003/2025.",
-      "No independent authentication or later legal framework is asserted."
-    ]
+    "archive_item_url": "https://archive.org/details/005-2025-national-calendar-executive-order-2"
   }
 ]

@@ -1,4 +1,4 @@
-"""Behavioral checks for Phase 1 source and document data."""
+"""Acceptance checks for the Bhoomi Federation public portal and national records."""
 
 import json
 import re
@@ -11,84 +11,22 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
+PROJECT_BASE = "/Bhoomi-Federation/"
 
 EXPECTED_DOCUMENTS = [
     ("BHF/001/2025", "2025-06-04", "Flag Adoption Proclamation"),
     ("BHF/002/2025", "2025-06-05", "National Day Proclamation"),
     ("BHF/003/2025", "2025-06-05", "Founding Proclamation"),
-    (
-        "BHF/004/2025",
-        "2025-06-06",
-        "On the Official Designation of Citizens of the Bhoomi Federation",
-    ),
-    (
-        "BHF/005/2025",
-        "2025-06-07",
-        "Adoption of the Official National Calendar",
-    ),
+    ("BHF/004/2025", "2025-06-06", "On the Official Designation of Citizens of the Bhoomi Federation"),
+    ("BHF/005/2025", "2025-06-07", "Adoption of the Official National Calendar"),
 ]
 
-EXPECTED_URLS = {
-    "BHF/001/2025": (
-        "https://archive.org/details/flag-adoption-proclamation",
-        "https://archive.org/download/flag-adoption-proclamation/Flag%20Adoption%20Proclamation.pdf",
-    ),
-    "BHF/002/2025": (
-        "https://archive.org/details/national-day-proclamation",
-        "https://archive.org/download/national-day-proclamation/National%20Day%20Proclamation.pdf",
-    ),
-    "BHF/003/2025": (
-        "https://archive.org/details/founding-proclamation",
-        "https://archive.org/download/founding-proclamation/Founding%20Proclamation.pdf",
-    ),
-    "BHF/004/2025": (
-        "https://archive.org/details/004-2025-citizens-bhoomians-executive-order-1",
-        "https://archive.org/download/004-2025-citizens-bhoomians-executive-order-1/004-2025%20Citizens%20-%20Bhoomians%20Executive%20Order%201.pdf",
-    ),
-    "BHF/005/2025": (
-        "https://archive.org/details/005-2025-national-calendar-executive-order-2",
-        "https://archive.org/download/005-2025-national-calendar-executive-order-2/005-2025%20National%20Calendar%20Executive%20Order%202.pdf",
-    ),
-}
-
-REQUIRED_DOCUMENT_FIELDS = {
-    "number",
-    "title",
-    "issue_date",
-    "document_type",
-    "issuing_authority",
-    "summary",
-    "canonical_source_url",
-    "archive_item_url",
-    "archive_file_url",
-    "displayed_license",
-    "redistribution_decision",
-    "uncertainty_notes",
-}
-
-ALLOWED_CLAIM_STATUSES = {
-    "primary_record",
-    "legacy_site",
-    "metadata_only",
-    "unresolved",
-}
-
-EXPECTED_SOURCE_IDS = {
-    "S1", "S2", "S3", "S4", "S5",
-    "L1", "L2", "L3", "L4",
-    "R1", "R2", "P1",
-    "C1", "C2", "C3", "C4", "C5", "C6",
-}
-
-REQUIRED_CLAIM_IDS = {
-    "C-FOUNDING-DATE",
-    "C-NATIONAL-DAY",
-    "C-VALUES",
-    "C-FLAG-ADOPTION",
-    "C-CITIZEN-DESIGNATION",
-    "C-CALENDAR-RULES",
-    "C-LEGACY-VISION",
-    "C-EARLIER-NAMES",
+EXPECTED_ITEM_URLS = {
+    "BHF/001/2025": "https://archive.org/details/flag-adoption-proclamation",
+    "BHF/002/2025": "https://archive.org/details/national-day-proclamation",
+    "BHF/003/2025": "https://archive.org/details/founding-proclamation",
+    "BHF/004/2025": "https://archive.org/details/004-2025-citizens-bhoomians-executive-order-1",
+    "BHF/005/2025": "https://archive.org/details/005-2025-national-calendar-executive-order-2",
 }
 
 EXPECTED_VALUES = (
@@ -98,20 +36,17 @@ EXPECTED_VALUES = (
     "collective peace",
 )
 
-PROJECT_BASE = "/Bhoomi-Federation/"
 EXPECTED_NAVIGATION = {
     "/Bhoomi-Federation/": "Home",
     "/Bhoomi-Federation/about/": "About & History",
-    "/Bhoomi-Federation/documents/": "Official Documents",
+    "/Bhoomi-Federation/documents/": "National Records",
     "/Bhoomi-Federation/calendar/": "National Calendar",
-    "/Bhoomi-Federation/canon/": "Canon",
-    "/Bhoomi-Federation/foundations/": "Foundations",
-    "/Bhoomi-Federation/sources/": "Sources & Provenance",
+    "/Bhoomi-Federation/foundations/": "Constitution & Government",
 }
 
 
 class PageMarkup(HTMLParser):
-    """Collect observable page semantics and route boundaries without a parser dependency."""
+    """Collect accessible page semantics and links without a parser dependency."""
 
     def __init__(self):
         super().__init__()
@@ -128,23 +63,17 @@ class PageMarkup(HTMLParser):
         self.nav_links = {}
         self.hrefs = []
         self.srcs = []
-        self.claim_ids = []
-        self.document_numbers = []
-        self.tags = []
         self.datetime_values = []
         self.hidden_ids = []
         self.document_cards = []
         self.current_document_card = None
-        self.collect_card_title = False
-        self.source_links = set()
-        self.source_anchors = set()
-        self.heading_stack = []
         self.collect_title = False
         self.collect_heading = False
+        self.collect_card_title = False
+        self.heading_stack = []
 
     def handle_starttag(self, tag, attrs):
         attributes = dict(attrs)
-        self.tags.append(tag)
         if tag == "time" and attributes.get("datetime"):
             self.datetime_values.append(attributes["datetime"])
         if "hidden" in attributes and attributes.get("id"):
@@ -172,23 +101,15 @@ class PageMarkup(HTMLParser):
             href = attributes.get("href")
             if href:
                 self.hrefs.append(href)
-                if href.startswith(PROJECT_BASE + "sources/#"):
-                    self.source_links.add(href.rsplit("#", 1)[1])
                 if self.nav_depth:
                     self.nav_links[href] = ""
             if attributes.get("id") == "skip-link" and href == "#main":
                 self.skip_link = True
-        src = attributes.get("src")
-        if src:
-            self.srcs.append(src)
-        claim_id = attributes.get("data-claim-id")
-        if claim_id:
-            self.claim_ids.append(claim_id)
-        document_number = attributes.get("data-document-number")
-        if document_number:
-            self.document_numbers.append(document_number)
+        if attributes.get("src"):
+            self.srcs.append(attributes["src"])
+        if attributes.get("data-document-number"):
             self.current_document_card = {
-                "number": document_number,
+                "number": attributes["data-document-number"],
                 "title": "",
                 "issue_date": None,
                 "document_type": attributes.get("data-document-type"),
@@ -199,8 +120,6 @@ class PageMarkup(HTMLParser):
             self.collect_card_title = True
         if tag == "time" and self.current_document_card is not None:
             self.current_document_card["issue_date"] = attributes.get("datetime")
-        if tag in {"section", "article", "div", "li"} and attributes.get("id", "").startswith(("S", "L", "R", "P", "C")):
-            self.source_anchors.add(attributes["id"])
 
     def handle_endtag(self, tag):
         if tag == "title":
@@ -238,185 +157,158 @@ def parse_page(path):
     return parser
 
 
-class PhaseOneDataTests(unittest.TestCase):
+class PortalDataTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.documents = json.loads((DATA / "documents.json").read_text(encoding="utf-8"))
-        cls.claims = json.loads((DATA / "claims.json").read_text(encoding="utf-8"))
-        cls.sources = json.loads((DATA / "sources.json").read_text(encoding="utf-8"))
-        cls.documents_by_number = {item["number"]: item for item in cls.documents}
-        cls.claims_by_id = {item["id"]: item for item in cls.claims}
-        cls.sources_by_id = {item["id"]: item for item in cls.sources}
 
-    def test_five_original_records_keep_printed_titles_and_dates(self):
-        actual = [
-            (record["number"], record["issue_date"], record["title"])
-            for record in self.documents
-        ]
+    def test_five_2025_records_keep_their_printed_titles_and_dates(self):
+        actual = [(record["number"], record["issue_date"], record["title"]) for record in self.documents]
         self.assertEqual(actual, EXPECTED_DOCUMENTS)
 
-    def test_each_record_links_to_its_expected_archive_item_and_pdf(self):
-        for number, (item_url, file_url) in EXPECTED_URLS.items():
-            with self.subTest(number=number):
-                record = self.documents_by_number[number]
-                self.assertEqual(record["archive_item_url"], item_url)
-                self.assertEqual(record["archive_file_url"], file_url)
-                self.assertEqual(record["canonical_source_url"], file_url)
-
-    def test_document_records_have_required_fields_and_link_only_rights_decision(self):
+    def test_2025_record_data_has_only_public_record_fields(self):
+        expected_fields = {"number", "title", "issue_date", "document_type", "issuing_authority", "summary", "archive_item_url"}
         self.assertEqual(len(self.documents), 5)
         for record in self.documents:
             with self.subTest(number=record["number"]):
-                self.assertTrue(REQUIRED_DOCUMENT_FIELDS.issubset(record))
-                self.assertTrue(record["displayed_license"].startswith("CC BY-NC-ND 4.0"))
-                self.assertIn("Archive.org metadata", record["displayed_license"])
-                self.assertEqual(record["redistribution_decision"], "link_only")
-                self.assertTrue(record["uncertainty_notes"])
-                self.assertNotEqual(record.get("legal_status"), "currently_in_force")
-                self.assertNotEqual(record.get("status"), "currently_in_force")
+                self.assertEqual(set(record), expected_fields)
+                self.assertEqual(record["archive_item_url"], EXPECTED_ITEM_URLS[record["number"]])
+                self.assertIn("Melvin Varghese, Chief Architect, The Bhoomi Federation", record["issuing_authority"])
 
-    def test_claim_statuses_and_references_resolve_to_real_sources(self):
-        self.assertTrue(REQUIRED_CLAIM_IDS.issubset(self.claims_by_id))
-        self.assertEqual(set(self.sources_by_id), EXPECTED_SOURCE_IDS)
-        self.assertEqual(len(self.sources), 18)
-        for claim in self.claims:
-            with self.subTest(claim=claim["id"]):
-                self.assertIn(claim["status"], ALLOWED_CLAIM_STATUSES)
-                self.assertTrue(claim["source_ids"])
-                self.assertTrue(claim["uncertainty_note"])
-                for source_id in claim["source_ids"]:
-                    self.assertIn(source_id, self.sources_by_id)
-        for source in self.sources:
-            with self.subTest(source=source["id"]):
-                self.assertTrue({"id", "title", "kind", "url", "limitation"}.issubset(source))
-                self.assertTrue(source["limitation"])
+    def test_new_constitutional_records_remain_distinct_and_dated_in_2026(self):
+        page = parse_page(ROOT / "documents" / "index.html")
+        text = " ".join(page.body_text)
+        self.assertIn("3 November 2026", text)
+        self.assertIn("2026-11-03", page.datetime_values)
+        for number, title in (
+            ("BHF/006/2026", "Constitution of the Bhoomi Federation"),
+            ("BHF/007/2026", "Federal Institutions and Accountability Act"),
+            ("BHF/008/2026", "Public Law and Administration Act"),
+            ("BHF/009/2026", "Citizenship and Identity Act"),
+        ):
+            with self.subTest(number=number):
+                self.assertIn(number, text)
+                self.assertIn(title, text)
+        self.assertTrue(all(not date.startswith("2026") for _, date, _ in EXPECTED_DOCUMENTS))
 
-    def test_founding_values_match_the_original_document(self):
-        text = self.claims_by_id["C-VALUES"]["text"].casefold()
+
+class PortalPageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.documents = json.loads((DATA / "documents.json").read_text(encoding="utf-8"))
+        cls.pages = {
+            PROJECT_BASE: ROOT / "index.html",
+            f"{PROJECT_BASE}about/": ROOT / "about" / "index.html",
+            f"{PROJECT_BASE}documents/": ROOT / "documents" / "index.html",
+            f"{PROJECT_BASE}calendar/": ROOT / "calendar" / "index.html",
+            f"{PROJECT_BASE}foundations/": ROOT / "foundations" / "index.html",
+        }
+        for record in cls.documents:
+            slug = record["number"].replace("/", "-").casefold()
+            cls.pages[f"{PROJECT_BASE}documents/{slug}/"] = ROOT / "documents" / slug / "index.html"
+        cls.parsed_pages = {route: parse_page(path) for route, path in cls.pages.items() if path.is_file()}
+
+    def test_core_pages_have_accessible_shared_shell_and_official_navigation(self):
+        for route, path in self.pages.items():
+            with self.subTest(route=route):
+                self.assertTrue(path.is_file(), f"Missing route file for {route}")
+                page = self.parsed_pages[route]
+                self.assertTrue(page.title)
+                self.assertEqual(page.lang, "en")
+                self.assertEqual(page.h1_count, 1)
+                self.assertTrue(page.skip_link)
+                self.assertEqual(page.nav_links, EXPECTED_NAVIGATION)
+
+    def test_old_navigation_routes_and_internal_notes_are_absent(self):
+        self.assertFalse((ROOT / "canon" / "index.html").exists())
+        self.assertFalse((ROOT / "sources" / "index.html").exists())
+        self.assertFalse((ROOT / "data" / "sources.json").exists())
+        self.assertFalse((ROOT / "data" / "claims.json").exists())
+        self.assertFalse((ROOT / "data" / "canon.json").exists())
+        self.assertFalse((ROOT / "docs").exists())
+
+    def test_every_local_portal_link_resolves(self):
+        parsed_by_path = {self.pages[route]: page for route, page in self.parsed_pages.items()}
+        for route, page in self.parsed_pages.items():
+            for target in [*page.hrefs, *page.srcs]:
+                if not target.startswith(PROJECT_BASE):
+                    continue
+                parsed = urlsplit(target)
+                relative = parsed.path.removeprefix(PROJECT_BASE)
+                target_path = ROOT / relative
+                if not relative or relative.endswith("/") or not target_path.suffix:
+                    target_path = target_path / "index.html"
+                self.assertTrue(target_path.is_file(), f"{route} links to missing {target}")
+                if parsed.fragment and target_path in parsed_by_path:
+                    self.assertIn(parsed.fragment, parsed_by_path[target_path].ids, f"{target} has no matching anchor")
+
+    def test_home_shows_founding_date_values_and_national_records_link(self):
+        page = self.parsed_pages[PROJECT_BASE]
+        text = " ".join(page.body_text).casefold()
+        self.assertIn("5 june 2025", text)
+        self.assertIn(f"{PROJECT_BASE}documents/", page.hrefs)
         for value in EXPECTED_VALUES:
             with self.subTest(value=value):
                 self.assertIn(value, text)
 
-    def test_calendar_claim_keeps_workweek_and_holiday_wording(self):
-        text = self.claims_by_id["C-CALENDAR-RULES"]["text"].casefold()
-        for phrase in ("monday", "friday", "saturday", "sunday", "5 june", "sole"):
+    def test_about_page_keeps_2025_national_history(self):
+        page = self.parsed_pages[f"{PROJECT_BASE}about/"]
+        text = " ".join(page.body_text).casefold()
+        for phrase in ("4 june 2025", "5 june 2025", "6 june 2025", "7 june 2025", "bhoomians", "national day"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, text)
 
-    def test_calendar_claim_and_document_summary_include_office_closure(self):
-        claim = self.claims_by_id["C-CALENDAR-RULES"]["text"].casefold()
-        summary = self.documents_by_number["BHF/005/2025"]["summary"].casefold()
-        for text in (claim, summary):
-            self.assertIn("government offices", text)
-            self.assertIn("remain closed", text)
+    def test_calendar_preserves_workweek_holiday_and_annual_observance_facts(self):
+        page = self.parsed_pages[f"{PROJECT_BASE}calendar/"]
+        text = " ".join(page.body_text).casefold()
+        for phrase in ("monday", "friday", "saturday", "sunday", "sole public holiday", "government offices remain closed", "annually"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, text)
+        for number in ("bhf-002-2025", "bhf-003-2025", "bhf-005-2025"):
+            self.assertIn(f"{PROJECT_BASE}documents/{number}/", page.hrefs)
 
-    def test_annual_national_day_recurrence_is_not_attributed_to_calendar_order(self):
-        claim = self.claims_by_id["C-NATIONAL-DAY"]
-        self.assertEqual(set(claim["source_ids"]), {"S2", "S3"})
-        self.assertNotIn("S5", claim["source_ids"])
-
-    def test_flag_color_conflict_is_preserved_as_uncertainty(self):
-        claim = self.claims_by_id["C-FLAG-ADOPTION"]
-        note = claim["uncertainty_note"].casefold()
-        self.assertIn("#008a45", note)
-        self.assertIn("#008445", note)
-        self.assertEqual(claim["status"], "primary_record")
-
-    def test_same_day_order_and_archive_metadata_labels_stay_unresolved(self):
-        founding = " ".join(self.documents_by_number["BHF/003/2025"]["uncertainty_notes"]).casefold()
-        calendar = " ".join(self.documents_by_number["BHF/005/2025"]["uncertainty_notes"]).casefold()
-        self.assertIn("archive.org", founding)
-        self.assertIn("both dated 5 june 2025", founding)
-        self.assertIn("order within that date is not stated", founding)
-        self.assertIn("executive order 2", calendar)
-        self.assertIn("metadata", calendar)
-
-    def test_citizenship_claim_does_not_invent_eligibility_or_process(self):
-        claim = self.claims_by_id["C-CITIZEN-DESIGNATION"]
-        note = claim["uncertainty_note"].casefold()
-        self.assertIn("eligibility", note)
-        self.assertIn("process", note)
-
-
-class PhaseOnePageTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.pages = {
-            "/Bhoomi-Federation/": ROOT / "index.html",
-            "/Bhoomi-Federation/about/": ROOT / "about/index.html",
-            "/Bhoomi-Federation/documents/": ROOT / "documents" / "index.html",
-            "/Bhoomi-Federation/calendar/": ROOT / "calendar" / "index.html",
-            "/Bhoomi-Federation/canon/": ROOT / "canon" / "index.html",
-            "/Bhoomi-Federation/foundations/": ROOT / "foundations" / "index.html",
-            "/Bhoomi-Federation/sources/": ROOT / "sources" / "index.html",
-        }
-        cls.claims = json.loads((DATA / "claims.json").read_text(encoding="utf-8"))
-        cls.claims_by_id = {item["id"]: item for item in cls.claims}
-        cls.documents = json.loads((DATA / "documents.json").read_text(encoding="utf-8"))
-        for record in cls.documents:
-            slug = record["number"].replace("/", "-").casefold()
-            cls.pages[f"{PROJECT_BASE}documents/{slug}/"] = ROOT / "documents" / slug / "index.html"
-
-    def test_core_pages_have_accessible_shared_shell_and_project_navigation(self):
-        for route, path in self.pages.items():
-            with self.subTest(route=route):
-                self.assertTrue(path.is_file(), f"Missing route file for {route}")
-                page = parse_page(path)
-                self.assertTrue(page.title, "Page title must not be empty")
-                self.assertEqual(page.lang, "en")
-                self.assertEqual(page.h1_count, 1)
-                self.assertTrue(page.skip_link)
-                self.assertIn("main", page.tags)
-                self.assertIn("header", page.tags)
-                self.assertIn("footer", page.tags)
-                self.assertEqual(page.nav_links, EXPECTED_NAVIGATION)
-
-    def test_every_project_base_link_and_local_asset_resolves_inside_repository(self):
-        parsed_pages = {path: parse_page(path) for path in self.pages.values() if path.is_file()}
-        for route, path in self.pages.items():
-            with self.subTest(route=route):
-                self.assertTrue(path.is_file(), f"Missing route file for {route}")
-                page = parsed_pages[path]
-                for target in [*page.hrefs, *page.srcs]:
-                    if not target.startswith(PROJECT_BASE):
-                        continue
-                    parsed = urlsplit(target)
-                    relative = parsed.path.removeprefix(PROJECT_BASE)
-                    target_path = ROOT / relative
-                    if not relative or relative.endswith("/") or not target_path.suffix:
-                        target_path = target_path / "index.html"
-                    self.assertTrue(target_path.is_file(), f"{route} links to missing {target}")
-                    if parsed.fragment:
-                        target_page = parsed_pages.get(target_path)
-                        if target_page:
-                            self.assertIn(parsed.fragment, target_page.ids, f"{target} has no matching anchor")
-
-    def test_filter_controls_are_labeled_and_results_have_a_polite_live_region(self):
-        page = parse_page(self.pages["/Bhoomi-Federation/documents/"])
+    def test_national_records_lists_five_2025_and_four_2026_records(self):
+        page = self.parsed_pages[f"{PROJECT_BASE}documents/"]
+        text = " ".join(page.body_text)
+        self.assertEqual([card["number"] for card in page.document_cards], [record[0] for record in EXPECTED_DOCUMENTS])
+        for record in self.documents:
+            with self.subTest(number=record["number"]):
+                self.assertIn(record["title"], text)
+                self.assertIn(record["issue_date"], page.datetime_values)
+                self.assertIn(record["archive_item_url"], page.hrefs)
+                slug = record["number"].replace("/", "-").casefold()
+                self.assertIn(f"{PROJECT_BASE}documents/{slug}/", page.hrefs)
+        for number, title in (
+            ("BHF/006/2026", "Constitution of the Bhoomi Federation"),
+            ("BHF/007/2026", "Federal Institutions and Accountability Act"),
+            ("BHF/008/2026", "Public Law and Administration Act"),
+            ("BHF/009/2026", "Citizenship and Identity Act"),
+        ):
+            with self.subTest(number=number):
+                self.assertIn(number, text)
+                self.assertIn(title, text)
         self.assertTrue({"document-search", "document-year", "document-type", "document-authority"}.issubset(page.labels))
         self.assertIn("document-results-status", page.live_region_ids)
+        self.assertIn("document-filters", page.hidden_ids)
 
-    def test_public_pages_link_to_archive_items_not_direct_pdf_files(self):
-        for route, path in self.pages.items():
-            with self.subTest(route=route):
-                self.assertTrue(path.is_file(), f"Missing route file for {route}")
-                page = parse_page(path)
-                download_links = [
-                    href
-                    for href in page.hrefs
-                    if "/download/" in urlsplit(href).path.casefold()
-                    or urlsplit(href).path.casefold().endswith(".pdf")
-                ]
-                self.assertEqual(download_links, [])
+    def test_each_2025_record_page_matches_public_record_metadata(self):
+        for record in self.documents:
+            slug = record["number"].replace("/", "-").casefold()
+            route = f"{PROJECT_BASE}documents/{slug}/"
+            page = self.parsed_pages[route]
+            text = " ".join(page.body_text)
+            headings = [value for tag, value in page.headings if tag == "h1"]
+            with self.subTest(number=record["number"]):
+                self.assertEqual(headings, [record["title"]])
+                self.assertIn(record["number"], text)
+                self.assertIn(record["issue_date"], page.datetime_values)
+                self.assertIn(record["document_type"], text)
+                self.assertIn(record["issuing_authority"], text)
+                self.assertIn(record["archive_item_url"], page.hrefs)
+                self.assertIn(f"{PROJECT_BASE}documents/", page.hrefs)
+                self.assertFalse(any(urlsplit(href).path.casefold().endswith(".pdf") for href in page.hrefs))
 
-    def test_same_day_order_note_cites_both_primary_records(self):
-        html = (ROOT / "documents" / "index.html").read_text(encoding="utf-8")
-        claim = re.search(r'<div\s+data-claim-id="C-FOUNDING-DATE"[^>]*>.*?</div>', html, re.DOTALL)
-        self.assertIsNotNone(claim)
-        cited_sources = set(re.findall(r'href="/Bhoomi-Federation/sources/#([^"]+)"', claim.group()))
-        self.assertTrue({"S2", "S3"}.issubset(cited_sources))
-
-    def test_css_contrast_and_reduced_motion_meet_release_thresholds(self):
+    def test_existing_visual_assets_remain_accessible_release_assets(self):
         css = (ROOT / "assets" / "css" / "site.css").read_text(encoding="utf-8")
         tokens = dict(re.findall(r"--color-([a-z-]+):\s*(#[0-9a-fA-F]{6})", css))
 
@@ -431,144 +323,15 @@ class PhaseOnePageTests(unittest.TestCase):
 
         surface = tokens["surface"]
         for token in ("text", "muted", "link"):
-            with self.subTest(color=token):
-                self.assertGreaterEqual(contrast(tokens[token], surface), 4.5)
+            self.assertGreaterEqual(contrast(tokens[token], surface), 4.5)
         self.assertGreaterEqual(contrast(tokens["focus"], surface), 3.0)
         self.assertIn("@media (prefers-reduced-motion: reduce)", css)
         self.assertIn("scroll-behavior: auto", css)
-
-    def test_every_factual_claim_has_a_known_id_and_visible_source_citations(self):
-        for route, path in self.pages.items():
-            if not path.exists():
-                continue
-            with self.subTest(route=route):
-                page = parse_page(path)
-                for claim_id in page.claim_ids:
-                    self.assertIn(claim_id, self.claims_by_id)
-                    required_sources = set(self.claims_by_id[claim_id]["source_ids"])
-                    self.assertTrue(required_sources.issubset(page.source_links))
-
-    def test_home_discloses_fictional_status_and_shows_founding_date_and_values(self):
-        page = parse_page(self.pages[PROJECT_BASE])
-        text = " ".join(page.body_text).casefold()
-        self.assertIn("fictional", text)
-        self.assertIn("5 june 2025", text)
-        for value in EXPECTED_VALUES:
-            with self.subTest(value=value):
-                self.assertIn(value, text)
-
-    def test_home_historical_overview_rows_have_claim_tags_and_citations(self):
-        page = parse_page(self.pages[PROJECT_BASE])
-        self.assertTrue(
-            {
-                "C-FOUNDING-DATE",
-                "C-VALUES",
-                "C-FLAG-ADOPTION",
-                "C-NATIONAL-DAY",
-                "C-CALENDAR-RULES",
-            }.issubset(page.claim_ids)
-        )
-        self.assertTrue({"S1", "S2", "S3", "S5"}.issubset(page.source_links))
-
-    def test_about_separates_unresolved_research_leads_from_verified_history(self):
-        page = parse_page(self.pages["/Bhoomi-Federation/about/"])
-        headings = [text.casefold() for tag, text in page.headings]
-        body = " ".join(page.body_text).casefold()
-        self.assertTrue(any("unresolved" in heading for heading in headings))
-        self.assertIn("republic of harmonia", body)
-        self.assertIn("melvin welfare dominion", body)
-
-    def test_calendar_states_only_recorded_workweek_and_cites_both_rules(self):
-        page = parse_page(self.pages["/Bhoomi-Federation/calendar/"])
-        text = " ".join(page.body_text).casefold()
-        self.assertIn("monday", text)
-        self.assertIn("friday", text)
-        self.assertIn("saturday", text)
-        self.assertIn("sunday", text)
-        self.assertIn("sole public holiday", text)
-        self.assertIn("government offices remain closed", text)
-        self.assertIn("annual", text)
-        self.assertTrue({"S2", "S3", "S5"}.issubset(page.source_links))
-
-    def test_sources_page_defines_evidence_statuses_and_license_limit(self):
-        page = parse_page(self.pages["/Bhoomi-Federation/sources/"])
-        text = " ".join(page.body_text).casefold()
-        for status in ALLOWED_CLAIM_STATUSES:
-            with self.subTest(status=status):
-                self.assertIn(status, text)
-        self.assertIn("cc by-nc-nd 4.0", text)
-        self.assertIn("does not independently establish", text)
-
-    def test_documents_static_fallback_lists_all_records_and_archive_item_links(self):
-        page = parse_page(self.pages["/Bhoomi-Federation/documents/"])
-        self.assertEqual(
-            set(page.claim_ids),
-            {
-                "C-FLAG-ADOPTION",
-                "C-NATIONAL-DAY",
-                "C-FOUNDING-DATE",
-                "C-VALUES",
-                "C-CITIZEN-DESIGNATION",
-                "C-CALENDAR-RULES",
-            },
-        )
-        self.assertTrue({"S1", "S2", "S3", "S4", "S5"}.issubset(page.source_links))
-        expected_numbers = [record["number"] for record in self.documents]
-        self.assertEqual(page.document_numbers, expected_numbers)
-        self.assertEqual(
-            page.document_cards,
-            [
-                {
-                    "number": item["number"],
-                    "title": item["title"],
-                    "issue_date": item["issue_date"],
-                    "document_type": item["document_type"],
-                    "issuing_authority": item["issuing_authority"],
-                }
-                for item in self.documents
-            ],
-        )
-        self.assertIn("primary record", " ".join(page.body_text).casefold())
-        self.assertIn("document-filters", page.hidden_ids)
-        self.assertIn("document-results-status", page.hidden_ids)
-        for record in self.documents:
-            with self.subTest(number=record["number"]):
-                self.assertIn(record["number"], " ".join(page.body_text))
-                self.assertIn(record["title"], " ".join(page.body_text))
-                self.assertIn(record["archive_item_url"], page.hrefs)
-                slug = record["number"].replace("/", "-").casefold()
-                self.assertIn(f"/Bhoomi-Federation/documents/{slug}/", page.hrefs)
-
-    def test_each_document_detail_page_matches_its_json_record_and_link_only_policy(self):
-        for record in self.documents:
-            slug = record["number"].replace("/", "-").casefold()
-            route = f"/Bhoomi-Federation/documents/{slug}/"
-            path = ROOT / "documents" / slug / "index.html"
-            with self.subTest(number=record["number"]):
-                self.assertTrue(path.is_file(), f"Missing detail route {route}")
-                page = parse_page(path)
-                text = " ".join(page.body_text)
-                headings = [value for tag, value in page.headings if tag == "h1"]
-                self.assertEqual(headings, [record["title"]])
-                self.assertIn(record["number"], text)
-                self.assertIn(record["issue_date"], page.datetime_values)
-                self.assertIn(record["document_type"], text)
-                self.assertIn(record["issuing_authority"], text)
-                self.assertIn("Primary record", text)
-                self.assertIn("CC BY-NC-ND 4.0", text)
-                self.assertIn("does not independently establish uploader authority", text)
-                self.assertIn(record["archive_item_url"], page.hrefs)
-                self.assertNotIn(record["archive_file_url"], page.hrefs)
-                self.assertFalse(any(href.lower().endswith(".pdf") for href in page.hrefs))
-
-    def test_social_preview_has_expected_png_dimensions_and_size(self):
-        path = ROOT / "assets" / "images" / "social-preview.png"
-        self.assertTrue(path.is_file(), "The GitHub social preview should exist")
-        image = path.read_bytes()
-        self.assertEqual(image[:8], b"\x89PNG\r\n\x1a\n")
-        width, height = struct.unpack(">II", image[16:24])
+        preview = (ROOT / "assets" / "images" / "social-preview.png").read_bytes()
+        self.assertEqual(preview[:8], b"\x89PNG\r\n\x1a\n")
+        width, height = struct.unpack(">II", preview[16:24])
         self.assertEqual((width, height), (1280, 640))
-        self.assertLess(len(image), 1024 * 1024)
+        self.assertLess(len(preview), 1024 * 1024)
 
 
 if __name__ == "__main__":

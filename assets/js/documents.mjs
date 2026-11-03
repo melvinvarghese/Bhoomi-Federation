@@ -5,7 +5,6 @@ const REQUIRED_FIELDS = [
   'document_type',
   'issuing_authority',
   'archive_item_url',
-  'redistribution_decision',
 ];
 
 export function filterDocuments(
@@ -32,8 +31,7 @@ export function filterDocuments(
 function isValidRecord(record) {
   return record && typeof record === 'object' &&
     REQUIRED_FIELDS.every((field) => typeof record[field] === 'string' && record[field].trim()) &&
-    /^\d{4}-\d{2}-\d{2}$/.test(record.issue_date) &&
-    record.redistribution_decision === 'link_only';
+    /^\d{4}-\d{2}-\d{2}$/.test(record.issue_date);
 }
 
 function addOptions(select, values) {

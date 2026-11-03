@@ -9,8 +9,34 @@ const records = JSON.parse(
 
 const authority = 'Melvin Varghese, Chief Architect, The Bhoomi Federation';
 
+const requiredPublicFields = [
+  'number',
+  'title',
+  'issue_date',
+  'document_type',
+  'issuing_authority',
+  'summary',
+  'archive_item_url',
+];
+
+const editorialFields = [
+  'canonical_source_url',
+  'archive_file_url',
+  'displayed_license',
+  'redistribution_decision',
+  'uncertainty_notes',
+];
+
 test('returns all five records in source order with no filters', () => {
   assert.deepEqual(filterDocuments(records), records);
+});
+
+test('public record data contains only the fields needed for the National Records section', () => {
+  assert.equal(records.length, 5);
+  for (const record of records) {
+    for (const field of requiredPublicFields) assert.ok(record[field], `${record.number} is missing ${field}`);
+    for (const field of editorialFields) assert.equal(Object.hasOwn(record, field), false, `${record.number} exposes ${field}`);
+  }
 });
 
 test('trims a mixed-case partial title query', () => {

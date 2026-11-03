@@ -1,19 +1,19 @@
-# Bhoomi Federation
+# The Bhoomi Federation
 
-A static, source-led project site. Its original 2025 records are preserved as a documentary archive; later fictional additions are dated and stored separately so they cannot be mistaken for historical documents.
+Official website of The Bhoomi Federation.
 
-## Content map
+## National information
 
-- `data/documents.json` and `documents/`: the five original records from 2025, their source links and uncertainty notes.
-- `data/claims.json` and `sources/`: historical claim evidence and the source inventory.
-- `data/canon.json`, `canon/` and `foundations/`: four new fictional canon records dated 3 November 2026, with constitutional, government, legal-order and citizenship foundations. They have no real-world legal effect and do not claim statehood or recognition.
-- `docs/constitutional-references.md`: the comparative primary-source research and design trade-offs behind the new fictional foundations.
+- `index.html`, `about/`, and `calendar/`: national information, history, and calendar.
+- `documents/`: National Records, with the five records issued in 2025 and constitutional records issued in 2026.
+- `foundations/`: Constitution, government, public law, and citizenship.
+- `data/documents.json`: the 2025 record details used by the National Records filters.
 
-The site uses plain HTML, CSS and JSON at the project base path `/Bhoomi-Federation/`. The additions reuse the existing page shell and styles; no server or new dependency is required.
+The static site is served from `/Bhoomi-Federation/`.
 
 ## Checks
 
-Run the full Python acceptance suite and the Node document-filter tests from the repository root:
+Run the Python acceptance suite and Node record-filter tests from the repository root:
 
 ```sh
 python3 -m unittest discover -s tests -v
