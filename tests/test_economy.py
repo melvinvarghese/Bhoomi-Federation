@@ -43,6 +43,11 @@ class EconomyPageTests(unittest.TestCase):
         self.assertIn("2026-11-04", self.page.datetime_values)
         self.assertIn(f"{PROJECT_BASE}foundations/#legal-order", self.page.hrefs)
 
+    def test_bill_preserves_chief_architect_supreme_authority(self):
+        self.assertIn("chief architect", self.text)
+        self.assertIn("supreme authority", self.text)
+        self.assertNotIn("no executive instrument alone", self.text)
+
     def test_page_does_not_leak_private_material_or_deferred_national_figures(self):
         self.assertFalse(any("/workspace/" in href or "Phase-3" in href for href in self.page.hrefs))
         self.assertNotRegex(self.text, r"\b(private framework|implementation plan|comparative sources|fictional project)\b")
