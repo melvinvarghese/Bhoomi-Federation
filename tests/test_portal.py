@@ -42,6 +42,7 @@ EXPECTED_NAVIGATION = {
     "/Bhoomi-Federation/documents/": "National Records",
     "/Bhoomi-Federation/calendar/": "National Calendar",
     "/Bhoomi-Federation/foundations/": "Constitution & Government",
+    "/Bhoomi-Federation/economy/": "Economy",
 }
 
 
@@ -202,6 +203,7 @@ class PortalPageTests(unittest.TestCase):
             f"{PROJECT_BASE}documents/": ROOT / "documents" / "index.html",
             f"{PROJECT_BASE}calendar/": ROOT / "calendar" / "index.html",
             f"{PROJECT_BASE}foundations/": ROOT / "foundations" / "index.html",
+            f"{PROJECT_BASE}economy/": ROOT / "economy" / "index.html",
         }
         for record in cls.documents:
             slug = record["number"].replace("/", "-").casefold()
@@ -265,7 +267,7 @@ class PortalPageTests(unittest.TestCase):
         )
         self.assertNotRegex(
             " ".join(page.body_text).casefold(),
-            r"\b(citizens|economy|geography)\b",
+            r"\b(citizens|geography)\b",
         )
 
     def test_about_page_keeps_2025_national_history(self):
